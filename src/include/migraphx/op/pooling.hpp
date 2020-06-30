@@ -50,6 +50,10 @@ struct pooling
     {
         check_shapes{inputs, *this}.has(1);
         check_attribute_size();
+        if(padding.size() + 2 != inputs[0].lens().size())
+        {
+            MIGRAPHX_THROW("POOLING: input and attribute dim size mismatch!");
+        }
 
         const shape& input = inputs.at(0);
         auto t             = input.type();
