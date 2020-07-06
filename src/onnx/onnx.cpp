@@ -795,8 +795,6 @@ struct onnx_parser
             left      = left + s_start * stride;
             right     = left;
         }
-
-        return;
     }
 
     template <class Op>
@@ -811,27 +809,14 @@ struct onnx_parser
             return;
         }
 
-        // check assymetric padding
-        bool asym_padding = false;
-        assert(padding.size() % 2 == 0);
-        size_t n_dims = padding.size() / 2;
-
-        for(size_t i = 0; i < n_dims; i++)
-        {
-            if(padding[i] != padding[i + n_dims])
-            {
-                asym_padding = true;
-                break;
-            }
-        }
-
-        // padding is symmetric, return directly
-        if(!asym_padding)
+        // if padding is symmetric, return directly
+        if(!is_asym_padding(padding))
         {
             return;
         }
 
         // asymmetric padding, make it symmetric
+        std::size_t n_dims = padding.size() / 2;
         s_start.resize(n_dims);
         for(std::size_t i = 0; i < n_dims; ++i)
         {
@@ -854,11 +839,9 @@ struct onnx_parser
         }
 
         // does not support ceil_mode
-        int ceil_mode = 0;
         if(contains(info.attributes, "ceil_mode"))
         {
-            ceil_mode = info.attributes.at("ceil_mode").i();
-            if(ceil_mode == 1)
+            if(info.attributes.at("ceil_mode").i() == 1)
             {
                 MIGRAPHX_THROW("PARSE_POOLING: pool does not support ceil_mode");
             }
@@ -925,7 +908,8 @@ struct onnx_parser
         // used to calculate the supposed output shape
         std::vector<int64_t> orig_padding(paddings.begin(), paddings.end());
 
-        std::vector<int64_t> slice_start, slice_end;
+        std::vector<int64_t> slice_start;
+        std::vector<int64_t> slice_end;
         tune_padding_size(op, paddings, count_include_pad, slice_start);
 
         if(!slice_start.empty())
