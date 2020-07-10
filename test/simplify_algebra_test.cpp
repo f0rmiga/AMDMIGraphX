@@ -1727,7 +1727,6 @@ TEST_CASE(reorder_reshape_slice_not_apply)
     auto p2 = p1;
     run_pass(p1);
     EXPECT(p1.sort() == p2.sort());
->>>>>>> 70ba821303f03ac9587b3e6846b29e3dbbd522b6
 }
 
 TEST_CASE(reorder_reshape_slice_diff_dims)
