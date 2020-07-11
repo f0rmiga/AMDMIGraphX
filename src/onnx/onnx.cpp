@@ -320,7 +320,7 @@ struct onnx_parser
         return curr_ins;
     }
 
-    bool is_asym_padding(const std::vector<int64_t>& padding)
+    static bool is_asym_padding(const std::vector<int64_t>& padding)
     {
         assert(padding.size() % 2 == 0);
         size_t pad_ndims = padding.size() / 2;
@@ -554,12 +554,12 @@ struct onnx_parser
     }
 
     template <class Op>
-    void cal_auto_padding_size(node_info info,
-                               Op& op,
-                               std::vector<std::size_t> k_lens,
-                               std::vector<std::size_t> dilation,
-                               const std::vector<std::size_t>& in_lens,
-                               std::vector<int64_t>& paddings)
+    static void cal_auto_padding_size(node_info info,
+                                      Op& op,
+                                      const std::vector<std::size_t>& k_lens,
+                                      const std::vector<std::size_t>& dilation,
+                                      const std::vector<std::size_t>& in_lens,
+                                      std::vector<int64_t>& paddings)
     {
         size_t kdims = in_lens.size() - 2;
         assert(k_lens.size() == kdims and dilation.size() == kdims);
@@ -589,7 +589,7 @@ struct onnx_parser
         }
     }
 
-    void check_padding_mode(node_info info, const std::string& op_name)
+    static void check_padding_mode(node_info info, const std::string& op_name)
     {
         // ensure pads availabe only when auto_pad is "NOT_SET"
         if(contains(info.attributes, "pads") and contains(info.attributes, "auto_pad"))
@@ -779,14 +779,13 @@ struct onnx_parser
         return add_bias(args, l1, 1);
     }
 
-    void
+    static void
     tune_padding_to_symmetric(int64_t& left, int64_t& right, const int stride, int64_t& s_start)
     {
         s_start = 0;
         if(left > right)
         {
-            right   = left;
-            s_start = 0;
+            right = left;
         }
         else if(left < right)
         {
@@ -797,11 +796,10 @@ struct onnx_parser
         }
     }
 
-    template <class Op>
-    void tune_padding_size(Op& op,
-                           std::vector<int64_t>& padding,
-                           int count_include_pad,
-                           std::vector<int64_t>& s_start)
+    static void tune_padding_size(const op::pooling& op,
+                                  std::vector<int64_t>& padding,
+                                  int count_include_pad,
+                                  std::vector<int64_t>& s_start)
     {
         // maxpooling or count_include_pad is 1, no change is required.
         if(op.mode == "max" or count_include_pad == 1)
