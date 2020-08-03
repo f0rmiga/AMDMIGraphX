@@ -280,9 +280,9 @@ struct cpu_deconvolution
             auto in_n    = in_lens[0];
             auto in_c    = in_lens[1];
 
-            auto wei   = weights.get_shape().lens();
-            auto wei_n = wei[0];
-            auto wei_c = wei[1];
+            auto wei      = weights.get_shape().lens();
+            auto wei_n    = wei[0];
+            auto wei_c    = wei[1];
             auto out_lens = output_shape.lens();
             auto kdims    = op.kdims();
 
