@@ -236,10 +236,6 @@ struct hip_layernorm : unary_device<hip_layernorm, &device::layernorm>
 };
 MIGRAPHX_REGISTER_OP(hip_layernorm)
 
-struct hip_layernorm : unary_device<hip_layernorm, &device::layernorm>
-{
-};
-
 struct hip_gelu : unary_device<hip_gelu, &device::gelu>
 {
 };
