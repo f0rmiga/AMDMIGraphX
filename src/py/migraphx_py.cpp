@@ -111,7 +111,9 @@ migraphx::shape to_shape(const py::buffer_info& info)
     migraphx::shape::type_t t;
     std::size_t n = 0;
     visit_types([&](auto as) {
-        if(info.format == py::format_descriptor<decltype(as())>::format())
+        if(info.format == py::format_descriptor<decltype(as())>::format() or
+           (info.format == "l" and py::format_descriptor<decltype(as())>::format() == "q") or
+           (info.format == "L" and py::format_descriptor<decltype(as())>::format() == "Q"))
         {
             t = as.type_enum();
             n = sizeof(as());
@@ -120,7 +122,7 @@ migraphx::shape to_shape(const py::buffer_info& info)
 
     if(n == 0)
     {
-        MIGRAPHX_THROW("MIGRAPHX PYTHON: Unsupported data type" + info.format);
+        MIGRAPHX_THROW("MIGRAPHX PYTHON: Unsupported data type " + info.format);
     }
 
     auto strides = info.strides;
